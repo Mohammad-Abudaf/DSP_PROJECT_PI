@@ -1,0 +1,62 @@
+image compression must the ration less the 0.01
+
+
+ def denoise_sound(sound_file):
+        audio, sr = rosa.load(sound_file, mono=True)
+        audio_clean = audio
+        audio = audio + 2 * np.random.randn(len(audio))
+
+        plt.plot(audio, color='c', label="Noisy")
+        plt.plot(audio_clean, color='k', label="Clean")
+        plt.legend()
+
+        # plt.show()
+
+        # sd.play(audio, sr)
+        # sd.wait()
+
+        n = len(audio)
+        frequency_components = np.fft.fft(audio, n)
+        PSD = np.abs(frequency_components) / n
+        freq = (1 / (sr * n)) * np.arange(n)
+        L = np.arange(1, np.floor(n / 2), dtype="int")
+
+        fig, axis = plt.subplots(2, 1)
+        plt.sca(axis[0])
+        plt.plot(audio, color="c", label="Noisy")
+        plt.plot(audio_clean, color="r", label="clean")
+
+        plt.sca(axis[1])
+        plt.plot(freq[L], PSD[L], color="c", label="Noisy")
+        plt.xlim(freq[L[0]], freq[L[-1]])
+
+        plt.legend()
+        plt.show()
+
+        indices = PSD > 100
+        PSD_clean = PSD * indices
+        frequency_components = indices * frequency_components
+        ffilt = np.fft.ifft(frequency_components)
+
+        fig, axis = plt.subplots(3, 1)
+        plt.sca(axis[0])
+        plt.plot(audio, color="c", label="Noisy")
+
+        plt.sca(axis[1])
+        plt.plot(audio_clean, color="r", label="clean")
+
+        plt.sca(axis[2])
+        plt.plot(freq[L], PSD[L], color="c", label="Noisy")
+        plt.plot(freq[L], PSD_clean[L], color="c", label="Noisy")
+        plt.xlim(freq[L[0]], freq[L[-1]])
+        plt.show()
+
+        filtered_audio = Filter.gaussian_filter1d(audio, 30, 100)
+
+        # sd.play(audio, sr)
+        # sd.wait()
+
+        sd.play(filtered_audio, sr)
+        sd.wait()
+
+
